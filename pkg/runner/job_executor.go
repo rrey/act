@@ -16,6 +16,7 @@ type jobInfo interface {
 	stopContainer() common.Executor
 	closeContainer() common.Executor
 	interpolateOutputs() common.Executor
+	fillSummary(workflow string, jobID string, outputs map[string]string, env map[string]string) common.Executor
 	result(result string)
 }
 
@@ -131,7 +132,9 @@ func newJobExecutor(info jobInfo, sf stepFactory, rc *RunContext) common.Executo
 			return postExecutor(ctx)
 		}).
 		Finally(info.interpolateOutputs()).
+		Finally(info.fillSummary(rc.Run.Workflow.Name, rc.Run.JobID, rc.Run.Job().Outputs, rc.Run.Job().Environment())).
 		Finally(info.closeContainer()))
+
 }
 
 func setJobResult(ctx context.Context, info jobInfo, rc *RunContext, success bool) {

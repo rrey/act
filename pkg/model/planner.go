@@ -150,6 +150,7 @@ func NewWorkflowPlanner(path string, noWorkflowRecurse bool) (WorkflowPlanner, e
 			}
 
 			wp.workflows = append(wp.workflows, workflow)
+			Summary[workflow.Name] = NewWorkflowSummary(workflow.Name)
 			_ = f.Close()
 		}
 	}
@@ -179,6 +180,7 @@ func NewSingleWorkflowPlanner(name string, f io.Reader) (WorkflowPlanner, error)
 	}
 
 	wp.workflows = append(wp.workflows, workflow)
+	Summary[workflow.Name] = NewWorkflowSummary(workflow.Name)
 
 	return wp, nil
 }
@@ -340,12 +342,17 @@ func (p *Plan) mergeStages(stages []*Stage) {
 	p.Stages = newStages
 }
 
+func fillSummary(workflow string, jobID string) {
+	Summary[workflow].AddJob(jobID)
+}
+
 func createStages(w *Workflow, jobIDs ...string) ([]*Stage, error) {
 	// first, build a list of all the necessary jobs to run, and their dependencies
 	jobDependencies := make(map[string][]string)
 	for len(jobIDs) > 0 {
 		newJobIDs := make([]string, 0)
 		for _, jID := range jobIDs {
+			fillSummary(w.Name, jID)
 			// make sure we haven't visited this job yet
 			if _, ok := jobDependencies[jID]; !ok {
 				if job := w.GetJob(jID); job != nil {

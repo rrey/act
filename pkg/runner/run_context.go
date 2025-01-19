@@ -641,6 +641,15 @@ func (rc *RunContext) interpolateOutputs() common.Executor {
 	}
 }
 
+func (rc *RunContext) fillSummary(workflow string, jobID string, outputs map[string]string, env map[string]string) common.Executor {
+	return func(ctx context.Context) error {
+		js := model.Summary[workflow].Jobs[jobID]
+		js.SetEnvVars(env)
+		js.SetOutputs(outputs)
+		return nil
+	}
+}
+
 func (rc *RunContext) startContainer() common.Executor {
 	return func(ctx context.Context) error {
 		if rc.IsHostEnv(ctx) {
