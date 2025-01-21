@@ -185,8 +185,20 @@ func runStepExecutor(step step, stage stepStage, executor common.Executor) commo
 		if orgerr != nil {
 			return orgerr
 		}
+		fillSummary(rc.Run.Workflow.Name, rc.Run.JobID, step, stepResult)
 		return err
 	}
+}
+
+func fillSummary(workflow string, jobID string, step step, stepResult *model.StepResult) {
+	job := model.Summary[workflow].Jobs[jobID]
+
+	job.Steps = append(job.Steps, model.StepSummary{
+		StepResult: *stepResult,
+		EnvVars:    *step.getEnv(),
+		ID:         step.getStepModel().ID,
+	})
+	model.Summary[workflow].Jobs[jobID] = job
 }
 
 func evaluateStepTimeout(ctx context.Context, exprEval ExpressionEvaluator, stepModel *model.Step) (context.Context, context.CancelFunc) {

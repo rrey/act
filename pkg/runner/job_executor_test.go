@@ -43,6 +43,11 @@ func (jim *jobInfoMock) matrix() map[string]interface{} {
 	return args.Get(0).(map[string]interface{})
 }
 
+func (jim *jobInfoMock) fillSummary(workflow string, jobID string, outputs map[string]string, env map[string]string) common.Executor {
+	args := jim.Called()
+	return args.Get(0).(func(context.Context) error)
+}
+
 func (jim *jobInfoMock) steps() []*model.Step {
 	args := jim.Called()
 

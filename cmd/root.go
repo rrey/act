@@ -651,6 +651,11 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 		if err != nil {
 			return err
 		}
+		// Write a json report of the run
+		err = model.Summary.Write()
+		if err != nil {
+			return err
+		}
 		return plannerErr
 	}
 }
