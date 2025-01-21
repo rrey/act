@@ -1,0 +1,33 @@
+name: Demo
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: [push]
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    outputs:
+      output1: ${{ steps.step2.outputs.foo }}
+    env:
+      SOME_ENV: "SOME_VAL"
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+        id: step1
+      - run: echo "foo=bar" >> $GITHUB_OUTPUT
+        id: step2
+      - run: |
+          echo "SOME_ENV:$SOME_ENV"
+          echo "SOME_OTHER_ENV:$SOME_OTHER_ENV"
+        id: step3
+        env:
+          SOME_OTHER_ENV: "OTHER_ENV"
+  job2:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job2 was started"
+        id: step1
+      - run: |
+          echo "SOME_ENV:$SOME_ENV"
+          echo "SOME_OTHER_ENV:$SOME_OTHER_ENV"
+        id: step3
+        env:
+          SOME_OTHER_ENV: "OTHER_ENV"

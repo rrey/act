@@ -31,6 +31,16 @@ func (js JobSummary) SetOutputs(outputs map[string]string) {
 	}
 }
 
+// StepByID sets the outputs of the step with the given ID
+func (js JobSummary) StepByID(Id string) *StepSummary {
+	for _, s := range js.Steps {
+		if s.ID == Id {
+			return &s
+		}
+	}
+	return nil
+}
+
 func NewJobSummary() JobSummary {
 	return JobSummary{
 		EnvVars: map[string]string{},
@@ -64,7 +74,7 @@ func (ws WorkflowSummaries) Write() error {
 		return err
 	}
 
-	err = os.WriteFile("workflow-summary.json", summaryJSON, 0o644)
+	err = os.WriteFile("workflow-summary.json", summaryJSON, 0o600)
 	if err != nil {
 		log.Errorf("Failed to write workflow summary to file: %v", err)
 		return err
@@ -72,4 +82,16 @@ func (ws WorkflowSummaries) Write() error {
 	return nil
 }
 
-var Summary WorkflowSummaries = make(WorkflowSummaries)
+func (ws *WorkflowSummaries) FromFile(path string) *WorkflowSummaries {
+	jsonFile, err := os.ReadFile(path)
+	if err != nil {
+		log.Printf("Failed to read file: #%v ", err)
+	}
+	err = json.Unmarshal(jsonFile, ws)
+	if err != nil {
+		log.Fatalf("Unmarshal: %v", err)
+	}
+	return ws
+}
+
+var Summary = make(WorkflowSummaries)
